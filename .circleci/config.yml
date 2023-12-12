@@ -1,15 +1,13 @@
 version: 2.1
 
+orbs:
+  python: circleci/python@2.1.1
+
 jobs:
   test_model:
-    machine:
-      resource_class: gpu.nvidia.medium
-      image: linux-cuda-11:default
+    executor: python/default
     steps:
       - checkout
-      - run:
-          name: Check GPU status
-          command: nvidia-smi
       - run:
           name: Set up Hugging Face CLI
           command:  pip3 install -U "huggingface_hub[cli]"
@@ -36,6 +34,4 @@ jobs:
 workflows:
   mask_detection_testing:
     jobs:
-      - test_model:
-          context:
-            - docker
+      - test_model
