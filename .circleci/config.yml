@@ -1,0 +1,37 @@
+version: 2.1
+
+orbs:
+  python: circleci/python@2.1.1
+
+jobs:
+  test_model:
+    executor: python/default
+    steps:
+      - checkout
+      - run:
+          name: Set up Hugging Face CLI
+          command:  pip3 install -U "huggingface_hub[cli]"
+      - run:
+          name: Set up a model from Hugging Face
+          command: |
+            cd ~
+            mkdir datasets; cd datasets
+            huggingface-cli login --token $HUGGINGFACE_TOKEN
+            huggingface-cli download mfunaki/cci-gpu-yolov8-maskdetection \
+              mask_best.pt \
+              --local-dir ~/.pyenv/runs/detect/train/weights
+      - run:
+          name: Test the model
+          command: |
+            pip3 install ultralytics
+            yolo task=detect mode=predict \
+              model=~/.pyenv/runs/detect/train/weights/mask_best.pt \
+              source=~/project/images
+      - store_artifacts:
+          path: ~/.pyenv/runs/detect/predict
+          destination: predict
+
+workflows:
+  mask_detection_testing:
+    jobs:
+      - test_model
