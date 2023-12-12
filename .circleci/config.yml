@@ -14,21 +14,21 @@ jobs:
       - run:
           name: Set up a model from Hugging Face
           command: |
-            cd /opt/circleci
+            cd ~
             mkdir datasets; cd datasets
             huggingface-cli login --token $HUGGINGFACE_TOKEN
             huggingface-cli download mfunaki/cci-gpu-yolov8-maskdetection \
               mask_best.pt \
-              --local-dir /opt/circleci/.pyenv/runs/detect/train/weights
+              --local-dir ~/.pyenv/runs/detect/train/weights
       - run:
           name: Test the model
           command: |
             pip3 install ultralytics
             yolo task=detect mode=predict \
-              model=/opt/circleci/.pyenv/runs/detect/train/weights/mask_best.pt \
+              model=~/.pyenv/runs/detect/train/weights/mask_best.pt \
               source=~/project/images
       - store_artifacts:
-          path: /opt/circleci/.pyenv/runs/detect/predict
+          path: ~/.pyenv/runs/detect/predict
           destination: predict
 
 workflows:
